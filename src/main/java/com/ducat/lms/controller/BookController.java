@@ -1,6 +1,7 @@
 package com.ducat.lms.controller;
 
-import com.ducat.lms.entity.Book;
+import com.ducat.lms.dto.BookInputDto;
+import com.ducat.lms.dto.BookOutputDto;
 import com.ducat.lms.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
@@ -17,24 +18,23 @@ public class BookController {
     BookService bookService;
 
     @GetMapping
-    public ResponseEntity<Book> getBook(@RequestParam Long id) {
+    public ResponseEntity<BookOutputDto> getBook(@RequestParam Long id) {
         return new ResponseEntity<>(bookService.getBook(id), HttpStatusCode.valueOf(200));
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<Book>> getAllBooks() {
+    public ResponseEntity<List<BookOutputDto>> getAllBooks() {
         return new ResponseEntity<>(bookService.getAllBooks(), HttpStatusCode.valueOf(200));
     }
 
     @PostMapping
-    public ResponseEntity<Book> addBook(@RequestBody Book book) {
-        return new ResponseEntity<>(bookService.addBook(book), HttpStatusCode.valueOf(201));
+    public ResponseEntity<BookOutputDto> addBook(@RequestBody BookInputDto bookInputDto) {
+        return new ResponseEntity<>(bookService.addBook(bookInputDto), HttpStatusCode.valueOf(201));
     }
 
-    @PutMapping
-    public ResponseEntity<Book> updateBook(@RequestBody Book book) {
-        Long bookId = book.getId();
-        return new ResponseEntity<>(bookService.updateBook(bookId, book), HttpStatusCode.valueOf(200));
+    @PutMapping("/{id}")
+    public ResponseEntity<BookOutputDto> updateBook(@PathVariable Long id, @RequestBody BookInputDto bookInputDto) {
+        return new ResponseEntity<>(bookService.updateBook(id, bookInputDto), HttpStatusCode.valueOf(200));
     }
 
     @DeleteMapping
