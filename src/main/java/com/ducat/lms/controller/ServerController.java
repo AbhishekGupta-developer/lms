@@ -1,33 +1,61 @@
 package com.ducat.lms.controller;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.TimeZone;
 
 @RestController
 @RequestMapping("/")
 public class ServerController {
 
+    private final Instant serverStartTime = Instant.now();
+
     @GetMapping
     public ResponseEntity<?> checkServerHealth() {
-        ServerStatus serverStatus = new ServerStatus();
-        return new ResponseEntity<>(serverStatus, HttpStatusCode.valueOf(200));
+        return new ResponseEntity<>(new ServerStatus(), HttpStatusCode.valueOf(200));
     }
 
-    class ServerStatus {
-        private LocalDateTime currentDateTime = LocalDateTime.now();
-        private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        private DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+    @Getter
+    public class ServerStatus {
+        private final String status;
+        private final String artifact;
+        private final String date;
+        private final String time;
+        private final String timeZoneId;
+        private final String uptime;
+        private final String os;
 
-        public String status = "Server is live!";
-        public String date = currentDateTime.format(dateFormatter);
-        public String time = currentDateTime.format(timeFormatter);
-        public String timeZoneId = TimeZone.getDefault().getID();
+        public ServerStatus() {
+            LocalDateTime currentDateTime = LocalDateTime.now();
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+            ZoneId zoneId = ZoneId.systemDefault();
+            ZoneOffset zoneOffset = OffsetDateTime.now(zoneId).getOffset();
+
+            this.status = "Server is live!";
+            this.artifact = "LMS";
+            this.date = currentDateTime.format(dateFormatter);
+            this.time = currentDateTime.format(timeFormatter);
+            this.timeZoneId = String.format("%s (UTC%s)", zoneId.getId(), zoneOffset);
+            this.uptime = calculateUptime();
+            this.os = System.getProperty("os.name") + " (" + System.getProperty("os.version") + ")";
+        }
+
+        private String calculateUptime() {
+            Duration duration = Duration.between(serverStartTime, Instant.now());
+            long hours = duration.toHours();
+            long minutes = duration.toMinutesPart();
+            long seconds = duration.toSecondsPart();
+
+            return String.format("%02d hours %02d minutes %02d seconds", hours, minutes, seconds);
+        }
     }
+
 }
