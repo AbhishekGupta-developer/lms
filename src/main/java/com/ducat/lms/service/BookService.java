@@ -7,9 +7,9 @@ import java.util.List;
 
 public interface BookService {
 
-    public BookOutputDto getBook(Long id);
-    public List<BookOutputDto> getAllBooks();
-    public BookOutputDto addBook(BookInputDto bookInputDto);
-    public BookOutputDto updateBook(Long id, BookInputDto bookInputDto);
-    public String removeBook(Long id);
+    BookOutputDto getBook(Long id);
+    List<BookOutputDto> getAllBooks();
+    BookOutputDto addBook(BookInputDto bookInputDto);
+    BookOutputDto updateBook(Long id, BookInputDto bookInputDto);
+    String removeBook(Long id);
 }
